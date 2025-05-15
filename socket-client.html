@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Test Socket.IO</title></head>
+<body>
+  <h2>Socket.IO Client</h2>
+  <label>User ID: <input id="userId" value="userA" /></label><br/>
+  <label>Receiver: <input id="to" value="userB" /></label><br/>
+  <label>Message: <input id="content" value="Hello !" /></label><br/>
+  <button id="connect">Connect</button>
+  <button id="send" disabled>Send</button>
+  <pre id="log"></pre>
+
+  <script src="https://cdn.jsdelivr.net/npm/socket.io-client/dist/socket.io.js"></script>
+  <script>
+    let socket;
+    const log = (msg) => {
+      document.getElementById("log").textContent += msg + "\n";
+    };
+
+    document.getElementById("connect").onclick = () => {
+      const userId = document.getElementById("userId").value;
+      socket = io("http://localhost:3001", { query: { userId } });
+      socket.on("connect", () => {
+        log("✅ Connected as " + userId);
+        document.getElementById("send").disabled = false;
+      });
+      socket.on("private_message", (msg) => {
+        log("📩 Received: " + JSON.stringify(msg));
+      });
+    };
+
+    document.getElementById("send").onclick = () => {
+      const to = document.getElementById("to").value;
+      const content = document.getElementById("content").value;
+      socket.emit("private_message", { to, content });
+      log("✉️ Sent to " + to + ": " + content);
+    };
+  </script>
+</body>
+</html>
